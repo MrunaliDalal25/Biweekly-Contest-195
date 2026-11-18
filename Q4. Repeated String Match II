@@ -1,0 +1,55 @@
+
+class Solution {
+    public boolean repeatedStringMatch(String a, String b, int x, int y) {
+
+        long sourceLength = (long) a.length() * x;
+        long targetLength = (long) b.length() * y;
+
+        if (targetLength > sourceLength) {
+            return false;
+        }
+
+        int n = a.length();
+        int m = b.length();
+
+        // Build KMP LPS array for b
+        int[] lps = new int[m];
+        int len = 0;
+
+        for (int i = 1; i < m; ) {
+            if (b.charAt(i) == b.charAt(len)) {
+                lps[i++] = ++len;
+            } else if (len > 0) {
+                len = lps[len - 1];
+            } else {
+                lps[i++] = 0;
+            }
+        }
+
+        int j = 0;
+        long matched = 0;
+
+        // Search b repeated y times in a repeated x times
+        for (long i = 0; i < sourceLength; i++) {
+
+            char ch = a.charAt((int)(i % n));
+
+            char expected = b.charAt((int)(matched % m));
+
+            while (matched > 0 && ch != expected) {
+                matched = lps[(int)(matched % m)];
+                expected = b.charAt((int)(matched % m));
+            }
+
+            if (ch == expected) {
+                matched++;
+
+                if (matched == targetLength) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}
